@@ -1,0 +1,41 @@
+name: Build Windows x64
+
+on:
+  push:
+    branches:
+      - master
+      - v2.1
+  pull_request:
+    branches:
+      - master
+      - v2.1
+  workflow_dispatch:
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC x64 environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build LuaJIT (Windows x64)
+        shell: cmd
+        run: |
+          cd src
+          call msvcbuild.bat
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: luajit-windows-x64
+          path: |
+            src/luajit.exe
+            src/lua51.dll
+            src/lua51.lib
+          if-no-files-found: error
